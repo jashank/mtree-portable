@@ -1,4 +1,4 @@
-#	@(#)Makefile	5.4 (Berkeley) 05/25/90
+#	@(#)Makefile	5.4 (Berkeley) 5/25/90
 
 PROG=	mtree
 SRCS=	compare.c create.c mtree.c spec.c verify.c
