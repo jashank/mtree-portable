@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 1989, 1990, 1993
+ * Copyright (c) 1990, 1993
  *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,118 +29,62 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+ *
+ *	@(#)mtree.h	8.1 (Berkeley) 6/6/93
  */
 
-#ifndef lint
-static char copyright[] =
-"@(#) Copyright (c) 1989, 1990, 1993\n\
-	The Regents of the University of California.  All rights reserved.\n";
-#endif /* not lint */
+#include <string.h>
+#include <stdlib.h>
 
-#ifndef lint
-static char sccsid[] = "@(#)mtree.c	8.1 (Berkeley) 6/6/93";
-#endif /* not lint */
+#define	KEYDEFAULT \
+	(F_GID | F_MODE | F_NLINK | F_SIZE | F_SLINK | F_TIME | F_UID)
 
-#include <sys/param.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <fts.h>
-#include "mtree.h"
-#include "extern.h"
+#define	MISMATCHEXIT	2
 
-extern int crc_total;
+typedef struct _node {
+	struct _node	*parent, *child;	/* up, down */
+	struct _node	*prev, *next;		/* left, right */
+	off_t	st_size;			/* size */
+	struct timespec	st_mtimespec;		/* last modification time */
+	u_long	cksum;				/* check sum */
+	char	*md5digest;			/* MD5 digest */
+	char	*slink;				/* symbolic link reference */
+	uid_t	st_uid;				/* uid */
+	gid_t	st_gid;				/* gid */
+#define	MBITS	(S_ISUID|S_ISGID|S_ISTXT|S_IRWXU|S_IRWXG|S_IRWXO)
+	mode_t	st_mode;			/* mode */
+	nlink_t	st_nlink;			/* link count */
 
-int ftsoptions = FTS_PHYSICAL;
-int cflag, dflag, eflag, rflag, sflag, uflag;
-u_short keys;
-char fullpath[MAXPATHLEN];
+#define	F_CKSUM	0x0001				/* check sum */
+#define	F_DONE	0x0002				/* directory done */
+#define	F_GID	0x0004				/* gid */
+#define	F_GNAME	0x0008				/* group name */
+#define	F_IGN	0x0010				/* ignore */
+#define	F_MAGIC	0x0020				/* name has magic chars */
+#define	F_MODE	0x0040				/* mode */
+#define	F_NLINK	0x0080				/* number of links */
+#define	F_SIZE	0x0100				/* size */
+#define	F_SLINK	0x0200				/* link count */
+#define	F_TIME	0x0400				/* modification time */
+#define	F_TYPE	0x0800				/* file type */
+#define	F_UID	0x1000				/* uid */
+#define	F_UNAME	0x2000				/* user name */
+#define	F_VISIT	0x4000				/* file visited */
+#define F_MD5	0x8000				/* MD5 digest */
+	u_short	flags;				/* items set */
 
-static void usage __P((void));
+#define	F_BLOCK	0x001				/* block special */
+#define	F_CHAR	0x002				/* char special */
+#define	F_DIR	0x004				/* directory */
+#define	F_FIFO	0x008				/* fifo */
+#define	F_FILE	0x010				/* regular file */
+#define	F_LINK	0x020				/* symbolic link */
+#define	F_SOCK	0x040				/* socket */
+	u_char	type;				/* file type */
 
-int
-main(argc, argv)
-	int argc;
-	char *argv[];
-{
-	extern int optind;
-	extern char *optarg;
-	int ch;
-	char *dir, *p;
+	char	name[1];			/* file name (must be last) */
+} NODE;
 
-	dir = NULL;
-	keys = KEYDEFAULT;
-	while ((ch = getopt(argc, argv, "cdef:K:k:p:rs:ux")) != EOF)
-		switch((char)ch) {
-		case 'c':
-			cflag = 1;
-			break;
-		case 'd':
-			dflag = 1;
-			break;
-		case 'e':
-			eflag = 1;
-			break;
-		case 'f':
-			if (!(freopen(optarg, "r", stdin)))
-				err("%s: %s", optarg, strerror(errno));
-			break;
-		case 'K':
-			while ((p = strsep(&optarg, " \t,")) != NULL)
-				if (*p != '\0')
-					keys |= parsekey(p, NULL);
-			break;
-		case 'k':
-			keys = F_TYPE;
-			while ((p = strsep(&optarg, " \t,")) != NULL)
-				if (*p != '\0')
-					keys |= parsekey(p, NULL);
-			break;
-		case 'p':
-			dir = optarg;
-			break;
-		case 'r':
-			rflag = 1;
-			break;
-		case 's':
-			sflag = 1;
-			crc_total = ~strtol(optarg, &p, 0);
-			if (*p)
-				err("illegal seed value -- %s", optarg);
-		case 'u':
-			uflag = 1;
-			break;
-		case 'x':
-			ftsoptions |= FTS_XDEV;
-			break;
-		case '?':
-		default:
-			usage();
-		}
-	argc -= optind;
-	argv += optind;
-
-	if (argc)
-		usage();
-
-	if (dir && chdir(dir))
-		err("%s: %s", dir, strerror(errno));
-
-	if ((cflag || sflag) && !getwd(fullpath))
-		err("%s", fullpath);
-
-	if (cflag) {
-		cwalk();
-		exit(0);
-	}
-	exit(verify());
-}
-
-static void
-usage()
-{
-	(void)fprintf(stderr,
-"usage: mtree [-cderux] [-f spec] [-K key] [-k key] [-p path] [-s seed]\n");
-	exit(1);
-}
+#define	RP(p)	\
+	((p)->fts_path[0] == '.' && (p)->fts_path[1] == '/' ? \
+	    (p)->fts_path + 2 : (p)->fts_path)
