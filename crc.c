@@ -1,3 +1,5 @@
+/*	$NetBSD: crc.c,v 1.1.1.1 2003/03/31 08:51:10 grant Exp $	*/
+
 /*-
  * Copyright (c) 1991, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -34,15 +36,29 @@
  * SUCH DAMAGE.
  */
 
-#ifndef lint
-/* from: static char sccsid[] = "@(#)crc.c	8.1 (Berkeley) 6/17/93"; */
-static char *rcsid = "$Id: crc.c,v 1.4 1994/12/24 16:02:49 cgd Exp $";
+#include "nbcompat.h"
+
+#ifdef HAVE_SYS_CDEFS_H
+#include <sys/cdefs.h>
+#endif
+
+#if defined(__RCSID) && !defined(lint)
+#if 0
+static char sccsid[] = "@(#)crc.c	8.1 (Berkeley) 6/17/93";
+#else
+__RCSID("$NetBSD: crc.c,v 1.1.1.1 2003/03/31 08:51:10 grant Exp $");
+#endif
 #endif /* not lint */
 
 #include <sys/types.h>
+
+#include <stdio.h>
+#include <time.h>
 #include <unistd.h>
 
-static u_int32_t crctab[] = {
+#include "extern.h"
+
+static const u_int32_t crctab[] = {
 	0x0,
 	0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b,
 	0x1a864db2, 0x1e475005, 0x2608edb8, 0x22c9f00f, 0x2f8ad6d6,
@@ -103,6 +119,7 @@ static u_int32_t crctab[] = {
  * locations to store the crc and the number of bytes read.  It returns 0 on
  * success and 1 on failure.  Errno is set on failure.
  */
+extern int sflag;
 u_int32_t crc_total = ~0;		/* The crc over a number of files. */
 
 int
@@ -112,17 +129,24 @@ crc(fd, cval, clen)
 {
 	register u_char *p;
 	register int nr;
-	register u_int32_t crc, len;
+	register u_int32_t thecrc, len;
+	register u_int32_t crctot;
 	u_char buf[16 * 1024];
 
 #define	COMPUTE(var, ch)	(var) = (var) << 8 ^ crctab[(var) >> 24 ^ (ch)]
 
-	crc = len = 0;
-	crc_total = ~crc_total;
+	thecrc = len = 0;
+	if (sflag)
+		crctot = ~crc_total;
 	while ((nr = read(fd, buf, sizeof(buf))) > 0)
-		for (len += nr, p = buf; nr--; ++p) {
-			COMPUTE(crc, *p);
-			COMPUTE(crc_total, *p);
+		if (sflag) {
+			for (len += nr, p = buf; nr--; ++p) {
+				COMPUTE(thecrc, *p);
+				COMPUTE(crctot, *p);
+			}
+		} else {
+			for (len += nr, p = buf; nr--; ++p)
+				COMPUTE(thecrc, *p);
 		}
 	if (nr < 0)
 		return (1);
@@ -130,12 +154,18 @@ crc(fd, cval, clen)
 	*clen = len;
 
 	/* Include the length of the file. */
-	for (; len != 0; len >>= 8) {
-		COMPUTE(crc, len & 0xff);
-		COMPUTE(crc_total, len & 0xff);
+	if (sflag) {
+		for (; len != 0; len >>= 8) {
+			COMPUTE(thecrc, len & 0xff);
+			COMPUTE(crctot, len & 0xff);
+		}
+	} else {
+		for (; len != 0; len >>= 8)
+			COMPUTE(thecrc, len & 0xff);
 	}
 
-	*cval = ~crc;
-	crc_total = ~crc_total;
+	*cval = ~thecrc;
+	if (sflag)
+		crc_total = ~crctot;
 	return (0);
 }

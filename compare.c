@@ -1,4 +1,4 @@
-/*	$NetBSD: compare.c,v 1.42 2002/10/08 00:34:08 lukem Exp $	*/
+/*	$NetBSD: compare.c,v 1.1.1.1 2003/03/31 08:51:09 grant Exp $	*/
 
 /*-
  * Copyright (c) 1989, 1993
@@ -33,12 +33,17 @@
  * SUCH DAMAGE.
  */
 
+#include "nbcompat.h"
+
+#ifdef HAVE_SYS_CDEFS_H
 #include <sys/cdefs.h>
+#endif
+
 #if defined(__RCSID) && !defined(lint)
 #if 0
 static char sccsid[] = "@(#)compare.c	8.1 (Berkeley) 6/6/93";
 #else
-__RCSID("$NetBSD: compare.c,v 1.42 2002/10/08 00:34:08 lukem Exp $");
+__RCSID("$NetBSD: compare.c,v 1.1.1.1 2003/03/31 08:51:09 grant Exp $");
 #endif
 #endif /* not lint */
 
