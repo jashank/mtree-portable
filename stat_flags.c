@@ -36,7 +36,7 @@
 static char sccsid[] = "@(#)stat_flags.c	8.1 (Berkeley) 5/31/93";
 #else
 static const char rcsid[] =
-	"$Id: stat_flags.c,v 1.8 1997/08/07 22:28:25 steve Exp $";
+  "$FreeBSD$";
 #endif
 #endif /* not lint */
 
@@ -118,13 +118,13 @@ string_to_flags(stringp, setp, clrp)
 	int clear;
 	char *string, *p;
 
-	clear = 0;
 	if (setp)
 		*setp = 0;
 	if (clrp)
 		*clrp = 0;
 	string = *stringp;
 	while ((p = strsep(&string, "\t ,")) != NULL) {
+		clear = 0;
 		*stringp = p;
 		if (*p == '\0')
 			continue;
