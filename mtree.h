@@ -1,62 +1,146 @@
 /*-
- * Copyright (c) 1990, 1993
+ * Copyright (c) 1989, 1990, 1993
  *	The Regents of the University of California.  All rights reserved.
  *
- * %sccs.include.redist.c%
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
+ * 4. Neither the name of the University nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
  *
- *	@(#)mtree.h	8.1 (Berkeley) 06/06/93
+ * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
  */
 
-#include <string.h>
-#include <stdlib.h>
+#ifndef lint
+static char copyright[] =
+"@(#) Copyright (c) 1989, 1990, 1993\n\
+	The Regents of the University of California.  All rights reserved.\n";
+#endif /* not lint */
 
-#define	KEYDEFAULT \
-	(F_GID | F_MODE | F_NLINK | F_SIZE | F_SLINK | F_TIME | F_UID)
+#ifndef lint
+static char sccsid[] = "@(#)mtree.c	8.1 (Berkeley) 6/6/93";
+#endif /* not lint */
 
-#define	MISMATCHEXIT	2
+#include <sys/param.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <fts.h>
+#include "mtree.h"
+#include "extern.h"
 
-typedef struct _node {
-	struct _node	*parent, *child;	/* up, down */
-	struct _node	*prev, *next;		/* left, right */
-	off_t	st_size;			/* size */
-	struct timespec	st_mtimespec;		/* last modification time */
-	u_long	cksum;				/* check sum */
-	char	*slink;				/* symbolic link reference */
-	uid_t	st_uid;				/* uid */
-	gid_t	st_gid;				/* gid */
-#define	MBITS	(S_ISUID|S_ISGID|S_ISTXT|S_IRWXU|S_IRWXG|S_IRWXO)
-	mode_t	st_mode;			/* mode */
-	nlink_t	st_nlink;			/* link count */
+extern int crc_total;
 
-#define	F_CKSUM	0x0001				/* check sum */
-#define	F_DONE	0x0002				/* directory done */
-#define	F_GID	0x0004				/* gid */
-#define	F_GNAME	0x0008				/* group name */
-#define	F_IGN	0x0010				/* ignore */
-#define	F_MAGIC	0x0020				/* name has magic chars */
-#define	F_MODE	0x0040				/* mode */
-#define	F_NLINK	0x0080				/* number of links */
-#define	F_SIZE	0x0100				/* size */
-#define	F_SLINK	0x0200				/* link count */
-#define	F_TIME	0x0400				/* modification time */
-#define	F_TYPE	0x0800				/* file type */
-#define	F_UID	0x1000				/* uid */
-#define	F_UNAME	0x2000				/* user name */
-#define	F_VISIT	0x4000				/* file visited */
-	u_short	flags;				/* items set */
+int ftsoptions = FTS_PHYSICAL;
+int cflag, dflag, eflag, rflag, sflag, uflag;
+u_short keys;
+char fullpath[MAXPATHLEN];
 
-#define	F_BLOCK	0x001				/* block special */
-#define	F_CHAR	0x002				/* char special */
-#define	F_DIR	0x004				/* directory */
-#define	F_FIFO	0x008				/* fifo */
-#define	F_FILE	0x010				/* regular file */
-#define	F_LINK	0x020				/* symbolic link */
-#define	F_SOCK	0x040				/* socket */
-	u_char	type;				/* file type */
+static void usage __P((void));
 
-	char	name[1];			/* file name (must be last) */
-} NODE;
+int
+main(argc, argv)
+	int argc;
+	char *argv[];
+{
+	extern int optind;
+	extern char *optarg;
+	int ch;
+	char *dir, *p;
 
-#define	RP(p)	\
-	((p)->fts_path[0] == '.' && (p)->fts_path[1] == '/' ? \
-	    (p)->fts_path + 2 : (p)->fts_path)
+	dir = NULL;
+	keys = KEYDEFAULT;
+	while ((ch = getopt(argc, argv, "cdef:K:k:p:rs:ux")) != EOF)
+		switch((char)ch) {
+		case 'c':
+			cflag = 1;
+			break;
+		case 'd':
+			dflag = 1;
+			break;
+		case 'e':
+			eflag = 1;
+			break;
+		case 'f':
+			if (!(freopen(optarg, "r", stdin)))
+				err("%s: %s", optarg, strerror(errno));
+			break;
+		case 'K':
+			while ((p = strsep(&optarg, " \t,")) != NULL)
+				if (*p != '\0')
+					keys |= parsekey(p, NULL);
+			break;
+		case 'k':
+			keys = F_TYPE;
+			while ((p = strsep(&optarg, " \t,")) != NULL)
+				if (*p != '\0')
+					keys |= parsekey(p, NULL);
+			break;
+		case 'p':
+			dir = optarg;
+			break;
+		case 'r':
+			rflag = 1;
+			break;
+		case 's':
+			sflag = 1;
+			crc_total = ~strtol(optarg, &p, 0);
+			if (*p)
+				err("illegal seed value -- %s", optarg);
+		case 'u':
+			uflag = 1;
+			break;
+		case 'x':
+			ftsoptions |= FTS_XDEV;
+			break;
+		case '?':
+		default:
+			usage();
+		}
+	argc -= optind;
+	argv += optind;
+
+	if (argc)
+		usage();
+
+	if (dir && chdir(dir))
+		err("%s: %s", dir, strerror(errno));
+
+	if ((cflag || sflag) && !getwd(fullpath))
+		err("%s", fullpath);
+
+	if (cflag) {
+		cwalk();
+		exit(0);
+	}
+	exit(verify());
+}
+
+static void
+usage()
+{
+	(void)fprintf(stderr,
+"usage: mtree [-cderux] [-f spec] [-K key] [-k key] [-p path] [-s seed]\n");
+	exit(1);
+}
