@@ -1,5 +1,3 @@
-/*	$NetBSD: stat_flags.c,v 1.1 2006/12/14 19:18:01 christos Exp $	*/
-
 /*-
  * Copyright (c) 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -12,7 +10,11 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the University nor the names of its contributors
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
+ * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -29,36 +31,23 @@
  * SUCH DAMAGE.
  */
 
-#if HAVE_NBTOOL_CONFIG_H
-#include "nbtool_config.h"
-#else
-#define HAVE_STRUCT_STAT_ST_FLAGS 1
-#endif
-
-#include <sys/cdefs.h>
-#if !defined(lint)
-#if 0
-static char sccsid[] = "@(#)stat_flags.c	8.2 (Berkeley) 7/28/94";
-#else
-__RCSID("$NetBSD: stat_flags.c,v 1.1 2006/12/14 19:18:01 christos Exp $");
-#endif
+#ifndef lint
+/*static char sccsid[] = "from: @(#)stat_flags.c	8.1 (Berkeley) 5/31/93";*/
+static char *rcsid = "$Id: stat_flags.c,v 1.2 1994/09/23 06:14:57 mycroft Exp $";
 #endif /* not lint */
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fts.h>
+
 #include <stddef.h>
 #include <string.h>
-#include <stdlib.h>
 
-#include "util.h"
-
-#define	SAPPEND(s) do {							\
+#define	SAPPEND(s) {							\
 	if (prefix != NULL)						\
-		(void)strlcat(string, prefix, sizeof(string));		\
-	(void)strlcat(string, s, sizeof(string));			\
+		(void)strcat(string, prefix);				\
+	(void)strcat(string, s);					\
 	prefix = ",";							\
-} while (/* CONSTCOND */ 0)
+}
 
 /*
  * flags_to_string --
@@ -66,55 +55,37 @@ __RCSID("$NetBSD: stat_flags.c,v 1.1 2006/12/14 19:18:01 christos Exp $");
  *	are set, return the default string.
  */
 char *
-flags_to_string(u_long flags, const char *def)
+flags_to_string(flags, def)
+	u_long flags;
+	char *def;
 {
-	char *string;
-	const char *prefix;
-	if ((string = malloc(128)) == NULL)
-		return NULL;
+	static char string[128];
+	char *prefix;
 
 	string[0] = '\0';
 	prefix = NULL;
-#if HAVE_STRUCT_STAT_ST_FLAGS
 	if (flags & UF_APPEND)
 		SAPPEND("uappnd");
 	if (flags & UF_IMMUTABLE)
 		SAPPEND("uchg");
 	if (flags & UF_NODUMP)
 		SAPPEND("nodump");
-	if (flags & UF_OPAQUE)
-		SAPPEND("opaque");
 	if (flags & SF_APPEND)
 		SAPPEND("sappnd");
 	if (flags & SF_ARCHIVED)
 		SAPPEND("arch");
 	if (flags & SF_IMMUTABLE)
 		SAPPEND("schg");
-#ifdef SF_SNAPSHOT
-	if (flags & SF_SNAPSHOT)
-		SAPPEND("snap");
-#endif
-#endif
-	if (prefix != NULL)
-		return string;
-/*###99 [cc] warning: implicit declaration of function 'free'%%%*/
-	free(string);
-	return strdup(def);
+	return (prefix == NULL && def != NULL ? def : string);
 }
 
 #define	TEST(a, b, f) {							\
-	if (!strcmp(a, b)) {						\
+	if (!memcmp(a, b, sizeof(b))) {					\
 		if (clear) {						\
 			if (clrp)					\
 				*clrp |= (f);				\
-			if (setp)					\
-				*setp &= ~(f);				\
-		} else {						\
-			if (setp)					\
-				*setp |= (f);				\
-			if (clrp)					\
-				*clrp &= ~(f);				\
-		}							\
+		} else if (setp)					\
+			*setp |= (f);					\
 		break;							\
 	}								\
 }
@@ -126,20 +97,20 @@ flags_to_string(u_long flags, const char *def)
  *	to the offending token.
  */
 int
-string_to_flags(char **stringp, u_long *setp, u_long *clrp)
+string_to_flags(stringp, setp, clrp)
+	char **stringp;
+	u_long *setp, *clrp;
 {
 	int clear;
 	char *string, *p;
 
+	clear = 0;
 	if (setp)
 		*setp = 0;
 	if (clrp)
 		*clrp = 0;
-
-#if HAVE_STRUCT_STAT_ST_FLAGS
 	string = *stringp;
 	while ((p = strsep(&string, "\t ,")) != NULL) {
-		clear = 0;
 		*stringp = p;
 		if (*p == '\0')
 			continue;
@@ -156,16 +127,6 @@ string_to_flags(char **stringp, u_long *setp, u_long *clrp)
 			clear = !clear;
 			TEST(p, "dump", UF_NODUMP);
 			return (1);
-		case 'n':
-				/*
-				 * Support `nonodump'. Note that
-				 * the state of clear is not changed.
-				 */
-			TEST(p, "nodump", UF_NODUMP);
-			return (1);
-		case 'o':
-			TEST(p, "opaque", UF_OPAQUE);
-			return (1);
 		case 's':
 			TEST(p, "sappnd", SF_APPEND);
 			TEST(p, "sappend", SF_APPEND);
@@ -179,12 +140,10 @@ string_to_flags(char **stringp, u_long *setp, u_long *clrp)
 			TEST(p, "uchg", UF_IMMUTABLE);
 			TEST(p, "uchange", UF_IMMUTABLE);
 			TEST(p, "uimmutable", UF_IMMUTABLE);
-			return (1);
+			/* FALLTHROUGH */
 		default:
 			return (1);
 		}
 	}
-#endif
-
 	return (0);
 }
