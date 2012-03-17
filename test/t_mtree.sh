@@ -1,4 +1,4 @@
-# $NetBSD: t_mtree.sh,v 1.7 2011/02/13 12:47:27 uebayasi Exp $
+# $NetBSD: t_mtree.sh,v 1.1 2009/04/07 13:52:08 apb Exp $
 #
 # Copyright (c) 2009 The NetBSD Foundation, Inc.
 # All rights reserved.
@@ -25,7 +25,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-# Postprocess mtree output, canonicalising portions that
+# Postprocess mtreee output, canonicalising portions that
 # are expected to differ from one run to another.
 h_postprocess()
 {
@@ -77,7 +77,7 @@ create_body()
 	create_setup
 
 	# run mtree and check output
-	( cd create && mtree -c -k type,nlink,link,size,sha256 ) >output.raw \
+	( cd create && mtree -c -k type,nlink,size,sha256 ) >output.raw \
 	|| atf_fail "mtree exit status $?"
 	h_postprocess <output.raw >output
 	h_check "$(atf_get_srcdir)/d_create.out" output
@@ -99,71 +99,8 @@ check_body()
 	h_check /dev/null output
 }
 
-atf_test_case convert_C
-convert_C_head()
-{
-	atf_set "descr" "Convert a specfile to mtree -C format, unsorted"
-}
-convert_C_body()
-{
-	mtree -C -K all <"$(atf_get_srcdir)/d_convert.in" >output
-	h_check "$(atf_get_srcdir)/d_convert_C.out" output
-}
-
-atf_test_case convert_C_S
-convert_C_S_head()
-{
-	atf_set "descr" "Convert a specfile to mtree -C format, sorted"
-}
-convert_C_S_body()
-{
-	mtree -C -S -K all <"$(atf_get_srcdir)/d_convert.in" >output
-	h_check "$(atf_get_srcdir)/d_convert_C_S.out" output
-}
-
-atf_test_case convert_D
-convert_D_head()
-{
-	atf_set "descr" "Convert a specfile to mtree -D format, unsorted"
-}
-convert_D_body()
-{
-	mtree -D -K all <"$(atf_get_srcdir)/d_convert.in" >output
-	h_check "$(atf_get_srcdir)/d_convert_D.out" output
-}
-
-atf_test_case convert_D_S
-convert_D_S_head()
-{
-	atf_set "descr" "Convert a specfile to mtree -D format, sorted"
-}
-convert_D_S_body()
-{
-	mtree -D -S -K all <"$(atf_get_srcdir)/d_convert.in" >output
-	h_check "$(atf_get_srcdir)/d_convert_D_S.out" output
-}
-
-atf_test_case merge
-merge_head()
-{
-	atf_set "descr" "Merge records of different type"
-}
-merge_body()
-{
-	mtree -C -M -K all <"$(atf_get_srcdir)/d_merge.in" >output
-	h_check "$(atf_get_srcdir)/d_merge_C_M.out" output
-	# same again, with sorting
-	mtree -C -M -S -K all <"$(atf_get_srcdir)/d_merge.in" >output
-	h_check "$(atf_get_srcdir)/d_merge_C_M_S.out" output
-}
-
 atf_init_test_cases()
 {
 	atf_add_test_case create
 	atf_add_test_case check
-	atf_add_test_case convert_C
-	atf_add_test_case convert_C_S
-	atf_add_test_case convert_D
-	atf_add_test_case convert_D_S
-	atf_add_test_case merge
 }
