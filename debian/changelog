@@ -1,3 +1,11 @@
+mtree-netbsd (20180822-6) unstable; urgency=medium
+
+  * Remove dependency on freebsd-buildutils for now, since it is
+    blocking transition to testing and is only used for tests.
+    Will restore if #957230 gets resolved.
+
+ -- John Goerzen <jgoerzen@complete.org>  Tue, 12 Jan 2021 09:48:19 -0600
+
 mtree-netbsd (20180822-5) unstable; urgency=medium
 
   * Update build-dep to support libarchive-tools instead of bsdtar.
