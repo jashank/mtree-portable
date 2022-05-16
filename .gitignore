@@ -1,0 +1,25 @@
+# Autotools-generated or -managed files.
+/.deps
+/Makefile
+/Makefile.in
+/aclocal.m4
+/autom4te.cache
+/compile
+/config.cache
+/config.guess
+/config.h
+/config.h.in
+/config.log
+/config.status
+/config.sub
+/configure
+/depcomp
+/install-sh
+/missing
+/stamp-h1
+
+# Build artefacts.
+/*.o
+/mtree
+/mtree.5.gz
+/mtree.8.gz
