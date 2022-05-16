@@ -6,7 +6,7 @@ CATEGORIES=		pkgtools sysutils
 
 MAINTAINER=		sbd@NetBSD.org
 HOMEPAGE=		https://www.NetBSD.org/
-COMMENT=		Utility for mapping and checking directory hierarchies
+COMMENT=		A utility for mapping and checking directory hierarchies.
 
 GNU_CONFIGURE=		yes
 
