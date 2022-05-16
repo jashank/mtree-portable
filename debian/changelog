@@ -1,3 +1,7 @@
+mtree-portable (1.0.0) unstable; urgency=medium
+
+  * Switch to 'mtree-portable' distribution.
+
 mtree-netbsd (20180822-6) unstable; urgency=medium
 
   * Remove dependency on freebsd-buildutils for now, since it is

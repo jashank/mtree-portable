@@ -1,24 +1,20 @@
-Source: mtree-netbsd
+Source: mtree-portable
 Section: utils
 Priority: optional
 Maintainer: John Goerzen <jgoerzen@complete.org>
 Build-Depends: debhelper (>= 9), autotools-dev, bmake, libnbcompat-dev (>= 20180822-5), libarchive-tools | bsdtar, libncurses-dev, libbsd-dev, libmd-dev
 Standards-Version: 4.4.1
-Homepage: http://cdn.netbsd.org/pub/pkgsrc/current/pkgsrc/pkgtools/mtree/README.html
-Vcs-Git: https://github.com/jgoerzen/mtree-netbsd.git
-Vcs-Browser: https://github.com/jgoerzen/mtree-netbsd
+Homepage: https://github.com/jashank/mtree-portable
+Vcs-Git: https://github.com/jashank/mtree-portable.git
+Vcs-Browser: https://github.com/jashank/mtree-portable
 
 Package: mtree-netbsd
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: Validates directory tree against specification
+Description: A utility for mapping and checking directory hierarchies.
  The mtree utility compares a file hierarchy against a specification,
- creates a specification for a file hierarchy, or modifies a specification.
- This specification can be controlled by the user, but typically includes
- file/directory/symlink names, ownership information, permission bits, and
- so forth.  It may optionally also include various hashes, such as SHA-256
- or MD5.
- .
- This mtree utility can understand its own files, as well as those generated
- by the FreeBSD mtree (in Debian as fmtree in freebsd-buildutils and
- freebsd-glue) and bsdtar/libarchive.
+ creates a specification for a file hierarchy, or modifies such a
+ specification.  This specification can be controlled by the user, but
+ typically includes file/directory/symlink names, ownership information,
+ permission bits, and so forth.  It may optionally also include various
+ hashes, such as SHA-256 or MD5.
