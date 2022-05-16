@@ -37,7 +37,9 @@
 #include "nbtool_config.h"
 #endif
 
+#if HAVE_NBCOMPAT_H
 #include <nbcompat.h>
+#endif
 #if HAVE_SYS_CDEFS_H
 #include <sys/cdefs.h>
 #endif
@@ -70,6 +72,9 @@ __RCSID("$NetBSD: excludes.c,v 1.13 2004/06/20 22:20:18 jmc Exp $");
 #endif
 #if HAVE_UTIL_H
 #include <util.h>
+#endif
+#if HAVE_LIBUTIL_H
+#include <libutil.h>
 #endif
 
 #include "extern.h"

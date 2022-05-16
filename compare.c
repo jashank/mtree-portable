@@ -37,7 +37,9 @@
 #include "nbtool_config.h"
 #endif
 
+#if HAVE_NBCOMPAT_H
 #include <nbcompat.h>
+#endif
 #if HAVE_SYS_CDEFS_H
 #include <sys/cdefs.h>
 #endif
@@ -62,6 +64,9 @@ __RCSID("$NetBSD: compare.c,v 1.60 2021/04/03 13:37:18 simonb Exp $");
 #if HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
+#if HAVE_STDBOOL_H
+#include <stdbool.h>
+#endif
 #if HAVE_STDIO_H
 #include <stdio.h>
 #endif
@@ -70,6 +75,7 @@ __RCSID("$NetBSD: compare.c,v 1.60 2021/04/03 13:37:18 simonb Exp $");
 #endif
 #if HAVE_STDLIB_H
 #include <stdlib.h>
+#endif
 #if HAVE_STRING_H
 #include <string.h>
 #endif
@@ -89,20 +95,32 @@ __RCSID("$NetBSD: compare.c,v 1.60 2021/04/03 13:37:18 simonb Exp $");
 #if HAVE_RMD160_H
 #include <rmd160.h>
 #endif
+#if HAVE_RIPEMD_H
+#include <ripemd.h>
+#endif
 #endif
 #ifndef NO_SHA1
 #if HAVE_SHA1_H
 #include <sha1.h>
 #endif
+#if HAVE_SHA_H
+#include <sha.h>
+#endif
 #endif
 #ifndef NO_SHA2
-#if HAVE_SHA2_H && HAVE_SHA512_FILE
+#if HAVE_SHA256_H
+#include <sha256.h>
+#endif
+#if HAVE_SHA384_H
+#include <sha384.h>
+#endif
+#if HAVE_SHA512_H
+#include <sha512.h>
+#endif
+#if HAVE_SHA2_H
 #include <sha2.h>
-#else
-#include <nbcompat/sha2.h>
 #endif
 #endif
-
 
 #include "extern.h"
 
@@ -172,7 +190,10 @@ do {									\
 int
 compare(NODE *s, FTSENT *p)
 {
-	uint32_t len, val, flags;
+	uint32_t len, val;
+#if HAVE_STRUCT_STAT_ST_FLAGS
+	uint32_t flags;
+#endif
 	int fd, label;
 	bool was_unlinked;
 	const char *cp, *tab;
@@ -472,7 +493,13 @@ typeerr:		LABEL;
 	}
 #ifndef NO_MD5
 	if (s->flags & F_MD5) {
-		if ((digestbuf = MD5File(p->fts_accpath, NULL)) == NULL) {
+		if ((digestbuf =
+#if HAVE_MD5_FILE
+			 MD5_File
+#elif HAVE_MD5FILE
+			 MD5File
+#endif
+			 (p->fts_accpath, NULL)) == NULL) {
 			LABEL;
 			printf("%s%s: %s: %s\n",
 			    tab, MD5KEY, p->fts_accpath, strerror(errno));
@@ -492,7 +519,17 @@ typeerr:		LABEL;
 #endif	/* ! NO_MD5 */
 #ifndef NO_RMD160
 	if (s->flags & F_RMD160) {
-		if ((digestbuf = RMD160File(p->fts_accpath, NULL)) == NULL) {
+		if ((digestbuf =
+#if HAVE_RMD160_FILE
+			 RMD160_File
+#elif HAVE_RMD160FILE
+			 RMD160File
+#elif HAVE_RIPEMD160_FILE
+			 RIPEMD160_File
+#elif HAVE_RIPEMD160FILE
+			 RIPEMD160File
+#endif
+			 (p->fts_accpath, NULL)) == NULL) {
 			LABEL;
 			printf("%s%s: %s: %s\n",
 			    tab, RMD160KEY, p->fts_accpath, strerror(errno));
@@ -512,7 +549,13 @@ typeerr:		LABEL;
 #endif	/* ! NO_RMD160 */
 #ifndef NO_SHA1
 	if (s->flags & F_SHA1) {
-		if ((digestbuf = SHA1File(p->fts_accpath, NULL)) == NULL) {
+		if ((digestbuf =
+#if HAVE_SHA1_FILE
+			 SHA1_File
+#elif HAVE_SHA1FILE
+			 SHA1File
+#endif
+			 (p->fts_accpath, NULL)) == NULL) {
 			LABEL;
 			printf("%s%s: %s: %s\n",
 			    tab, SHA1KEY, p->fts_accpath, strerror(errno));
@@ -532,7 +575,13 @@ typeerr:		LABEL;
 #endif	/* ! NO_SHA1 */
 #ifndef NO_SHA2
 	if (s->flags & F_SHA256) {
-		if ((digestbuf = SHA256_File(p->fts_accpath, NULL)) == NULL) {
+		if ((digestbuf =
+#if HAVE_SHA256_FILE
+			 SHA256_File
+#elif HAVE_SHA256FILE
+			 SHA256File
+#endif
+			 (p->fts_accpath, NULL)) == NULL) {
 			LABEL;
 			printf("%s%s: %s: %s\n",
 			    tab, SHA256KEY, p->fts_accpath, strerror(errno));
@@ -551,7 +600,13 @@ typeerr:		LABEL;
 	}
 #ifdef SHA384_BLOCK_LENGTH
 	if (s->flags & F_SHA384) {
-		if ((digestbuf = SHA384_File(p->fts_accpath, NULL)) == NULL) {
+		if ((digestbuf =
+#if HAVE_SHA384_FILE
+			 SHA384_File
+#elif HAVE_SHA384FILE
+			 SHA384File
+#endif
+			 (p->fts_accpath, NULL)) == NULL) {
 			LABEL;
 			printf("%s%s: %s: %s\n",
 			    tab, SHA384KEY, p->fts_accpath, strerror(errno));
@@ -570,7 +625,13 @@ typeerr:		LABEL;
 	}
 #endif
 	if (s->flags & F_SHA512) {
-		if ((digestbuf = SHA512_File(p->fts_accpath, NULL)) == NULL) {
+		if ((digestbuf =
+#if HAVE_SHA512_FILE
+			 SHA512_File
+#elif HAVE_SHA512FILE
+			 SHA512File
+#endif
+			 (p->fts_accpath, NULL)) == NULL) {
 			LABEL;
 			printf("%s%s: %s: %s\n",
 			    tab, SHA512KEY, p->fts_accpath, strerror(errno));

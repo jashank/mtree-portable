@@ -35,36 +35,40 @@
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include "mtree.h"
-
-#if 0
 #if HAVE_NBTOOL_CONFIG_H
 #include "nbtool_config.h"
-#else
-#define HAVE_STRUCT_STAT_ST_FLAGS 1
-#endif
 #endif
 
+#if HAVE_NBCOMPAT_H
 #include <nbcompat.h>
+#endif
 #if HAVE_ERR_H
 #include <err.h>
 #endif
 #if HAVE_FTS_H
 #include <fts.h>
 #endif
+#if HAVE_STDBOOL_H
+#include <stdbool.h>
+#endif
 #if HAVE_UTIL_H
 #include <util.h>
 #endif
-#if HAVE_STDBOOL_H
-#include <stdbool.h>
+#if HAVE_LIBUTIL_H
+#include <libutil.h>
+#endif
+
+#ifndef __arraycount
+#define __arraycount(x) (sizeof((x)) / sizeof((x)[0]))
 #endif
 
 #if HAVE_NETDB_H
 /* For MAXHOSTNAMELEN on some platforms. */
-#if HAVE_NETDB_H
 #include <netdb.h>
 #endif
-#endif
+
+#include "mtree.h"
+#include "stat_flags.h"
 
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN 256
@@ -84,7 +88,9 @@ void	 cwalk(FILE *);
 void	 dump_nodes(FILE *, const char *, NODE *, int);
 void	 init_excludes(void);
 int	 matchtags(NODE *);
-__dead __printflike(1,2) void	 mtree_err(const char *, ...);
+void	mtree_err(const char *, ...)
+	__attribute__((__format__(__printf__, 1, 2)))
+	__attribute__((noreturn));
 const char *nodetype(u_int);
 u_int	 parsekey(const char *, int *);
 void	 parsetags(slist_t *, char *);
@@ -104,6 +110,3 @@ extern uint32_t crc_total;
 extern int	ftsoptions, keys;
 extern char	fullpath[];
 extern slist_t	includetags, excludetags;
-
-
-#include "stat_flags.h"

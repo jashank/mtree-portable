@@ -37,7 +37,9 @@
 #include "nbtool_config.h"
 #endif
 
+#if HAVE_NBCOMPAT_H
 #include <nbcompat.h>
+#endif
 #if HAVE_SYS_CDEFS_H
 #include <sys/cdefs.h>
 #endif
@@ -105,17 +107,30 @@ __RCSID("$NetBSD: create.c,v 1.76 2018/11/18 23:03:36 sevan Exp $");
 #if HAVE_RMD160_H
 #include <rmd160.h>
 #endif
+#if HAVE_RIPEMD_H
+#include <ripemd.h>
+#endif
 #endif
 #ifndef NO_SHA1
 #if HAVE_SHA1_H
 #include <sha1.h>
 #endif
+#if HAVE_SHA_H
+#include <sha.h>
+#endif
 #endif
 #ifndef NO_SHA2
-#if HAVE_SHA2_H && HAVE_SHA512_FILE
+#if HAVE_SHA256_H
+#include <sha256.h>
+#endif
+#if HAVE_SHA384_H
+#include <sha384.h>
+#endif
+#if HAVE_SHA512_H
+#include <sha512.h>
+#endif
+#if HAVE_SHA2_H
 #include <sha2.h>
-#else
-#include <nbcompat/sha2.h>
 #endif
 #endif
 
@@ -138,8 +153,7 @@ static u_long flags;
 static int	dcmp(const FTSENT *FTS_CONST *, const FTSENT *FTS_CONST *);
 static void	output(FILE *, int, int *, const char *, ...)
 	__attribute__((__format__(__printf__, 4, 5))); /* __printflike(4, 5); */
-static int	statd(FILE *, FTS *, FTSENT *, uid_t *, gid_t *, mode_t *,
-    u_long *);
+static int	statd(FILE *, FTS *, FTSENT *, uid_t *, gid_t *, mode_t *, u_long *);
 static void	statf(FILE *, int, FTSENT *);
 
 void
@@ -248,7 +262,7 @@ dosum(FILE *fp, int indent, FTSENT *p, int *offset, int flag,
 }
 
 static char *
-crcFile(const char *fname, char *dummy __unused)
+crcFile(const char *fname, char *dummy __attribute__((unused)))
 {
 	char *ptr;
 	uint32_t val, len;
@@ -331,20 +345,54 @@ statf(FILE *fp, int indent, FTSENT *p)
 	if (S_ISREG(p->fts_statp->st_mode))  {
 		dosum(fp, indent, p, &offset, F_CKSUM, crcFile, "cksum");
 #ifndef NO_MD5
-		dosum(fp, indent, p, &offset, F_MD5, MD5File, MD5KEY);
+		dosum(fp, indent, p, &offset, F_MD5,
+#if HAVE_MD5_FILE
+			MD5_File,
+#elif HAVE_MD5FILE
+			MD5File,
+#endif
+			MD5KEY);
 #endif	/* ! NO_MD5 */
 #ifndef NO_RMD160
-		dosum(fp, indent, p, &offset, F_RMD160, RMD160File, RMD160KEY);
+		dosum(fp, indent, p, &offset, F_RMD160,
+#if HAVE_RMD160_FILE
+			RMD160_File,
+#elif HAVE_RMD160FILE
+			RMD160File,
+#elif HAVE_RIPEMD160_FILE
+			RIPEMD160_File,
+#elif HAVE_RIPEMD160FILE
+			RIPEMD160File,
+#endif
+			RMD160KEY);
 #endif	/* ! NO_RMD160 */
 #ifndef NO_SHA1
-		dosum(fp, indent, p, &offset, F_SHA1, SHA1File, SHA1KEY);
+		dosum(fp, indent, p, &offset, F_SHA1, SHA1_File, SHA1KEY);
 #endif	/* ! NO_SHA1 */
 #ifndef NO_SHA2
-		dosum(fp, indent, p, &offset, F_SHA256, SHA256_File, SHA256KEY);
-#ifdef SHA384_BLOCK_LENGTH
-		dosum(fp, indent, p, &offset, F_SHA384, SHA384_File, SHA384KEY);
+		dosum(fp, indent, p, &offset, F_SHA256,
+#if HAVE_SHA256_FILE
+			SHA256_File,
+#elif HAVE_SHA256FILE
+			SHA256File,
 #endif
-		dosum(fp, indent, p, &offset, F_SHA512, SHA512_File, SHA512KEY);
+			SHA256KEY);
+#ifdef SHA384_BLOCK_LENGTH
+		dosum(fp, indent, p, &offset, F_SHA384,
+#if HAVE_SHA384_FILE
+			SHA384_File,
+#elif HAVE_SHA384FILE
+			SHA384File,
+#endif
+			SHA384KEY);
+#endif
+		dosum(fp, indent, p, &offset, F_SHA512,
+#if HAVE_SHA512_FILE
+			SHA512_File,
+#elif HAVE_SHA512FILE
+			SHA512File,
+#endif
+			SHA512KEY);
 #endif	/* ! NO_SHA2 */
 	}
 	if (keys & F_SLINK &&
