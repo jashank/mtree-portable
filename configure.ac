@@ -1,6 +1,5 @@
 AC_PREREQ(2.59)
 AC_INIT([mtree], [1.0.0], [https://github.com/archiecobbs/nmtree/issues])
-AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_SRCDIR([mtree.c])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE([1.9 foreign])
