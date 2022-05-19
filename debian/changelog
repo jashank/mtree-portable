@@ -1,0 +1,43 @@
+mtree-netbsd (20180822-6) unstable; urgency=medium
+
+  * Remove dependency on freebsd-buildutils for now, since it is
+    blocking transition to testing and is only used for tests.
+    Will restore if #957230 gets resolved.
+
+ -- John Goerzen <jgoerzen@complete.org>  Tue, 12 Jan 2021 09:48:19 -0600
+
+mtree-netbsd (20180822-5) unstable; urgency=medium
+
+  * Update build-dep to support libarchive-tools instead of bsdtar.
+    Closes: #945890.
+  * Update standards-version.
+
+ -- John Goerzen <jgoerzen@complete.org>  Sun, 08 Dec 2019 09:40:24 -0600
+
+mtree-netbsd (20180822-4) unstable; urgency=low
+
+  * Coordinate with libnbcompat-dev v5 libraries
+
+ -- John Goerzen <jgoerzen@complete.org>  Fri, 05 Oct 2018 08:44:49 -0500
+
+mtree-netbsd (20180822-3) unstable; urgency=low
+
+  * Harmonize build-dep with libnbcompat
+  * Correct debian/copyright.  Closes: #910332.
+
+ -- John Goerzen <jgoerzen@complete.org>  Fri, 05 Oct 2018 07:50:43 -0500
+
+mtree-netbsd (20180822-2) unstable; urgency=medium
+
+  * Adding tests, verifying compatibility with FreeBSD fmtree from
+    freebsd-buildutils
+  * Added sub-second time precision
+  * Added README.Debian
+
+ -- John Goerzen <jgoerzen@complete.org>  Thu, 04 Oct 2018 08:40:30 -0500
+
+mtree-netbsd (20180822-1) unstable; urgency=medium
+
+  * Initial release (Closes: #910253)  <nnnn is the bug number of your ITP>
+
+ -- John Goerzen <jgoerzen@complete.org>  Wed, 03 Oct 2018 21:49:57 -0500
