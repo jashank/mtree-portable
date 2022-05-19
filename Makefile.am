@@ -1,4 +1,6 @@
-# vim: noet:sw=8:ts=8:
+#-
+# SPDX-License-Identifier: BSD-2-Clause
+#
 
 bin_PROGRAMS = mtree
 

@@ -1,6 +1,8 @@
 mtree: a utility for mapping and checking directory hierarchies
 ========================================================================
 
+:SPDX-License-Identifier: BSD-2-Clause
+
 The ``mtree`` utility compares a file hierarchy against a specification,
 creates a specification for a file hierarchy, or modifies such a
 specification.  This specification can be controlled by the user, but

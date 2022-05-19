@@ -1,36 +1,12 @@
-/*	$NetBSD: only.c,v 1.3 2017/09/07 04:04:13 nakayama Exp $	*/
-
 /*-
+ * SPDX-License-Identifier: BSD-3-Clause
  * Copyright (c) 2013 The NetBSD Foundation, Inc.
- * All rights reserved.
- *
- * This code is derived from software contributed to The NetBSD Foundation
- * by Christos Zoulas.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of The NetBSD Foundation nor the names of its
- *    contributors may be used to endorse or promote products derived
- *    from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
- * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
- * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
- * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ *	All rights reserved.
+ *	This code is derived from software contributed to
+ *	The NetBSD Foundation by Christos Zoulas.
  */
+
+/*	from NetBSD: only.c,v 1.3 2017/09/07 04:04:13 nakayama Exp */
 
 #if HAVE_CONFIG_H
 #include "config.h"
@@ -38,8 +14,10 @@
 #if HAVE_NBTOOL_CONFIG_H
 #include "nbtool_config.h"
 #endif
-
+#if HAVE_NBCOMPAT_H
 #include <nbcompat.h>
+#endif
+
 #if HAVE_SYS_CDEFS_H
 #include <sys/cdefs.h>
 #endif
@@ -51,6 +29,12 @@ __RCSID("$NetBSD: only.c,v 1.3 2017/09/07 04:04:13 nakayama Exp $");
 #include <sys/param.h>
 #endif
 
+#if HAVE_ERR_H
+#include <err.h>
+#endif
+#if HAVE_STDBOOL_H
+#include <stdbool.h>
+#endif
 #if HAVE_STDIO_H
 #include <stdio.h>
 #endif
@@ -60,14 +44,12 @@ __RCSID("$NetBSD: only.c,v 1.3 2017/09/07 04:04:13 nakayama Exp $");
 #if HAVE_STRING_H
 #include <string.h>
 #endif
-#if HAVE_STDBOOL_H
-#include <stdbool.h>
-#endif
 #if HAVE_TIME_H
 #include <time.h>
 #endif
-#if HAVE_ERR_H
-#include <err.h>
+
+#if HAVE_LIBUTIL_H
+#include <libutil.h>
 #endif
 #if HAVE_UTIL_H
 #include <util.h>

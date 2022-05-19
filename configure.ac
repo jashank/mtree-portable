@@ -1,3 +1,7 @@
+#-
+# SPDX-License-Identifier: BSD-2-Clause
+#
+
 AC_PREREQ([2.69])
 AC_INIT([mtree],[1.0.0],[https://github.com/jashank/mtree-portable/issues])
 AC_CONFIG_SRCDIR([mtree.c])

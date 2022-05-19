@@ -1,34 +1,10 @@
-/* from NetBSD: excludes.c,v 1.13 2004/06/20 22:20:18 jmc Exp */
-/* from pkgsrc: excludes.c,v 1.4 2004/08/21 04:10:45 jlam Exp */
-
-/*
- * Copyright 2000 Massachusetts Institute of Technology
- *
- * Permission to use, copy, modify, and distribute this software and
- * its documentation for any purpose and without fee is hereby
- * granted, provided that both the above copyright notice and this
- * permission notice appear in all copies, that both the above
- * copyright notice and this permission notice appear in all
- * supporting documentation, and that the name of M.I.T. not be used
- * in advertising or publicity pertaining to distribution of the
- * software without specific, written prior permission.  M.I.T. makes
- * no representations about the suitability of this software for any
- * purpose.  It is provided "as is" without express or implied
- * warranty.
- *
- * THIS SOFTWARE IS PROVIDED BY M.I.T. ``AS IS''.  M.I.T. DISCLAIMS
- * ALL EXPRESS OR IMPLIED WARRANTIES WITH REGARD TO THIS SOFTWARE,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT
- * SHALL M.I.T. BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
- * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
- * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
+/*-
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2000 Massachusetts Institute of Technology.
  */
+
+/*	from NetBSD: excludes.c,v 1.13 2004/06/20 22:20:18 jmc Exp */
+/*	from pkgsrc: excludes.c,v 1.4 2004/08/21 04:10:45 jlam Exp */
 
 #if HAVE_CONFIG_H
 #include "config.h"
@@ -36,14 +12,13 @@
 #if HAVE_NBTOOL_CONFIG_H
 #include "nbtool_config.h"
 #endif
-
 #if HAVE_NBCOMPAT_H
 #include <nbcompat.h>
 #endif
+
 #if HAVE_SYS_CDEFS_H
 #include <sys/cdefs.h>
 #endif
-
 #if defined(__RCSID) && !defined(lint)
 __RCSID("$NetBSD: excludes.c,v 1.13 2004/06/20 22:20:18 jmc Exp $");
 #endif
@@ -70,11 +45,12 @@ __RCSID("$NetBSD: excludes.c,v 1.13 2004/06/20 22:20:18 jmc Exp $");
 #if HAVE_TIME_H
 #include <time.h>
 #endif
-#if HAVE_UTIL_H
-#include <util.h>
-#endif
+
 #if HAVE_LIBUTIL_H
 #include <libutil.h>
+#endif
+#if HAVE_UTIL_H
+#include <util.h>
 #endif
 
 #include "extern.h"

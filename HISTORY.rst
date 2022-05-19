@@ -1,3 +1,5 @@
+:SPDX-License-Identifier: BSD-2-Clause
+
 This repository is very weird:
 in an attempt to preserve as much of
 the development history as possible,
