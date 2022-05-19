@@ -1,4 +1,5 @@
-/*	$NetBSD: stat_flags.c,v 1.5 2011/07/27 15:31:00 seb Exp $	*/
+/* from NetBSD: stat_flags.c,v 1.3 2022/04/19 20:32:17 rillig Exp */
+/* from pkgsrc: stat_flags.c,v 1.5 2011/07/27 15:31:00 seb Exp */
 
 /*-
  * Copyright (c) 1993

@@ -1,4 +1,5 @@
-/*	$NetBSD: crc.c,v 1.5 2010/03/21 16:30:17 joerg Exp $	*/
+/* from NetBSD: crc.c,v 1.10 2001/03/21 03:16:38 atatat Exp */
+/* from pkgsrc: crc.c,v 1.5 2010/03/21 16:30:17 joerg Exp */
 
 /*-
  * Copyright (c) 1991, 1993
@@ -47,7 +48,7 @@
 #if 0
 static char sccsid[] = "@(#)crc.c	8.1 (Berkeley) 6/17/93";
 #else
-__RCSID("$NetBSD: crc.c,v 1.5 2010/03/21 16:30:17 joerg Exp $");
+__RCSID("$NetBSD: crc.c,v 1.10 2001/03/21 03:16:38 atatat Exp $");
 #endif
 #endif /* not lint */
 

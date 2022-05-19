@@ -1,4 +1,5 @@
-/*	$NetBSD: stat_flags.h,v 1.1 2003/09/05 18:39:00 jlam Exp $	*/
+/* from NetBSD: stat_flags.h,v 1.4 2003/08/07 09:05:16 agc Exp */
+/* from pkgsrc stat_flags.h,v 1.1 2003/09/05 18:39:00 jlam Exp */
 
 /*-
  * Copyright (c) 1991, 1993
