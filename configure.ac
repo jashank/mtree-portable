@@ -1,25 +1,28 @@
-#                                               -*- Autoconf -*-
-# Process this file with autoconf to produce a configure script.
-
-AC_PREREQ(2.57)
-AC_INIT([mtree], [20040722], [grant@NetBSD.org])
+AC_PREREQ(2.59)
+AC_INIT([mtree], [1.0.0], [https://github.com/archiecobbs/nmtree/issues])
+AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_SRCDIR([mtree.c])
 AC_CONFIG_HEADER([config.h])
+AM_INIT_AUTOMAKE([1.9 foreign])
+
+# Allow changing program name
+AC_ARG_PROGRAM
 
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_INSTALL
 
 # Checks for libraries.
-AC_CHECK_LIB(util, fparseln)
+AC_CHECK_LIB(nbcompat, fparseln)
 
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([ctype.h dirent.h err.h errno.h fcntl.h fnmatch.h fts.h \
-	grp.h limits.h md5.h netdb.h pwd.h rmd160.h sha1.h sha2.h \
+	grp.h limits.h netdb.h pwd.h \
 	stdarg.h stddef.h stdio.h stdlib.h string.h time.h unistd.h \
 	util.h vis.h])
 AC_CHECK_HEADERS([sys/cdefs.h sys/param.h sys/queue.h sys/stat.h sys/types.h])
+AC_CHECK_HEADERS([nbcompat/md5.h nbcompat/rmd160.h nbcompat/sha1.h nbcompat/sha2.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
